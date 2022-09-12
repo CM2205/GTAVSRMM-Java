@@ -1,0 +1,2 @@
+color a
+java Main

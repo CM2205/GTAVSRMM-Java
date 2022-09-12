@@ -1,94 +1,90 @@
-/*  Grand Theft Auto V Self Radio Music Manager (GTAVSRMM)
-    Created by Conrado Martinez 
-    7.24.21
-*/
-
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Scanner;
 
+/*
+ * GTAVSRMM
+ * Grand Theft Auto V Self Radio Music Manager (GUI Pending)
+ * 
+ *  // Main.java \\ 
+ * Class(es): Main
+ * Subclass(es): N/A
+ * Dependenc(y/ies): FileOp.java, GUI.java
+ * 
+ * This class holds the programs main "running loop." Calls 
+ * methods from FileOp to handle directory manipulation and 
+ * GUI to render visual elements.
+ * 
+ * Last Edit: 11 Sept 2022
+ *  
+ */
 
 public class Main {
-    public static void main (String [] args) {
+
+    public static void main(String[] args) {
+
+        int playlistIdx = 1; 
+        int playlistSelection; 
+
+        FileOp fileOp = new FileOp();
         Scanner scnr = new Scanner(System.in);
-        String userInput;
-        String currUser = System.getProperty("user.name");
 
-        System.out.print("\n");
-        System.out.print("Welcome to GTAVSRMM!");
-        System.out.println("\n");
-        System.out.println("Current user is : " + currUser);
-        String userMusicDirStr = "C:\\Users/" + currUser + "/Documents/Rockstar Games/GTA V/mm";
-        File userMusicDir = new File("C:\\Users/" + currUser + "/Documents/Rockstar Games/GTA V/mm");
-        File activeMusicdir = new File("C:\\Users/" + currUser + "/Documents/Rockstar Games/GTA V/User Music/");
-        File [] pListDir = userMusicDir.listFiles();
+        System.out.println( "\n" + 
+            "Hello " + FileOp.getUsername());
 
-        int pListCount = 1;
+        System.out.println("\n" + "Playlists Found (" + 
+            fileOp.getPlaylists().length + ")" + "\n");
 
-        System.out.println("----------------------------------------------------------------------");
-        for (File pList : pListDir) {
-            System.out.println("| To set active playlist to (" + pList.getName() + "), enter " + pListCount);
-            pListCount ++;
+        for (File f : fileOp.getPlaylists()) {
+            System.out.println("["+ playlistIdx + "] " + f.getName());
+            playlistIdx++;
         }
-        System.out.println("----------------------------------------------------------------------");
-        System.out.print("\n");
 
-        int pListSelection;
+        System.out.println("\n" + "Enter the playlist's number to select");
+        System.out.println("Note: multi-selection is not supported... yet." + "\n");
 
-        userInput = scnr.next();
+        playlistSelection = scnr.nextInt() - 1;
+
+        if (playlistSelection > fileOp.getPlaylists().length - 1) {
+            System.err.println("\n" + "Invalid entry! Selection number" + 
+            "must match an option listed" + "\n");
+            scnr.close();
+            System.exit(-1);
+        }
+
+        System.out.println("\n" + "You've selected the playlist \""+ 
+            fileOp.getPlaylists()[playlistSelection].getName() + "\"." + "\n" );
+
+        System.out.println("Purging User Music");
+        File[] UserMusic = fileOp.getUserMusic();
+
+        if (UserMusic.length == 0) {
+            System.out.println("No files to purge" + "\n");
+        }
+        else {
+            System.out.println("Found " + UserMusic.length + " files to delete.");
+            for (File f : UserMusic) {
+                System.out.println("Deleted" + "\"" + f.getName() + "\"");
+            }
+
+            System.out.println("Purge complete." + "\n" );
+        }
+
+        System.out.println("Copying initiated");
         try {
-            pListSelection = Integer.parseInt(userInput);
-        }
-        catch (NumberFormatException e) {
-            pListSelection = 0;
+            fileOp.copyOp(fileOp.getPlaylists()[playlistSelection]);
+        } catch (IOException e) {}
+
+        System.out.println("Copying successful" + "\n" + "Playlist \"" + 
+            fileOp.getPlaylists()[playlistSelection].getName() + "\" has been selected." + "\n");
+        System.out.println("Thanks for using GTAVSRMM :)" + "\n" + "Press any letter then enter too exit." + "\n");
+
+        if (scnr.next() != null) {
+            scnr.close();
+            System.out.println("\n" + "Bye!" + "\n");
+            System.exit(1); 
         }
 
-        if (pListSelection == 0) {
-            // run help subroutine.
-        }
-
-        System.out.println("Setting playlist (" + pListDir[pListSelection - 1].getName() + ") as the active playlist...");
-        for (File song : activeMusicdir.listFiles()) {
-            song.delete();
-        }
-        userMusicDir = new File (userMusicDirStr + "/" + pListDir[pListSelection - 1].getName() + "/");
-        File [] songsToCopy = userMusicDir.listFiles();
-        //Path relocate = null;
-
-        
-        for (File song : songsToCopy) {
-            Path relocate = null;
-            try {
-                relocate = Files.copy(Paths.get(song.getPath()), Paths.get(activeMusicdir.getPath() + "/" + song.getName()));
-            } 
-            catch (IOException e ) {
-                System.out.println("File operation failed.");
-            }
-            if (relocate != null) {
-                System.out.println("Successfully moved " + song.getName() + " into the active directory");
-            }
-            System.out.println(song.getPath());
-        }
-        scnr.close();
-        System.out.println(activeMusicdir.getPath());
-
-        try {
-            System.out.println("Launching game...");
-            Runtime runTime = Runtime.getRuntime();
-            Process process = runTime.exec("C:\\Program Files/Rockstar Games/Grand Theft Auto V/PlayGTAV.exe");
-            try {
-                Thread.sleep(5000);
-            } 
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            process.destroy();
-        } 
-        catch (IOException e) {
-            e.printStackTrace();
-        }
     }
+
 }
