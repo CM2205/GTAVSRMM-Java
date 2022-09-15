@@ -16,3 +16,4 @@ How to use:
     Playlists should now be visible. Read through options and type the number that cooresponds to the playlist you would like to select.
     Previous songs will be removed and newly selected playlist will be copied into the active directory.
 
+** Note: generated config.txt includes the game executeable path, after the "[game exe] " tag (with a space between tag and path) **
