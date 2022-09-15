@@ -55,6 +55,8 @@ public class FileOp {
         } catch (FileNotFoundException e) {}
     }
 
+    public FileOp(int num) {}
+
     public File[] getPlaylists() {
         return playlists;
     }
